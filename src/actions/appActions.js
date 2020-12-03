@@ -214,3 +214,42 @@ export const windowDeactivated = () => {
     }
   }
 }
+
+export const openDilerForm = () => {
+  return {
+    type: 'DILER_FORM_ACTIVATED',
+    data: {openDialog: true},
+  }
+}
+
+export const changeDilerTabs = (newValue) => {
+  return {
+    type: 'CHANGE_DILER_TABS',
+    data: {value: newValue},
+  }
+}
+
+export const closeDilerForm = () => {
+  return {
+    type: 'DILER_FORM_CLOSE',
+  }
+}
+
+export const deleteTextarea = (index, activeTab) => {
+  return {
+    type: 'DELETE_TEXTAREA',
+    data: {
+      index: index,
+      activeTab: activeTab
+    },
+  }
+}
+
+export const addTextarea = (activeTab) => {
+  return {
+    type: 'ADD_TEXTAREA',
+    data: {
+      index_1: activeTab,
+    }
+  }
+}

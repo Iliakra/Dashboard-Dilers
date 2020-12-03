@@ -42,6 +42,7 @@ const settings = {
     },
     passStatus:{},
     windowIsVisible:true,
+    feedsContent: [['Текст 1','Текст 2'],['Текст 2'],['Текст 3'],['Текст 4']],
   },
 
   isMobile:isMobile(),

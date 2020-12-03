@@ -13,6 +13,7 @@ import {
   setSortMode,
   clearFilters,
   reloadStoreData,
+  openDilerForm,
 } from '../actions/appActions';
 
 import {
@@ -23,6 +24,13 @@ import {
 import settings from '../configuration/Settings.js';
 
 import { xls, filesaver } from 'xlszipsave';
+
+import Button from '@material-ui/core/Button';
+
+import DilerTabsForm from './DilerTabsForm';
+
+
+
 
 class TopMenu extends Component {
 
@@ -45,6 +53,7 @@ class TopMenu extends Component {
     this.selectSortMode_changeHandler=this.selectSortMode_changeHandler.bind(this);
     this.clear_buttonHandler=this.clear_buttonHandler.bind(this);
     this.reload_buttonHandler=this.reload_buttonHandler.bind(this);
+    this.openDilersForm=this.openDilersForm.bind(this);
 
   }
 
@@ -167,6 +176,12 @@ class TopMenu extends Component {
 
     return [items, sum];
 
+  }
+
+  openDilersForm(event) {
+    this.store.dispatch(
+      openDilerForm()
+    )
   }
 
   render() {
@@ -484,7 +499,6 @@ class TopMenu extends Component {
       </select>
     );
 
-
     children.push(
       <div key="clear" className="menu-button" onClick={this.clear_buttonHandler}>Сбросить фильтры</div>
     );
@@ -492,6 +506,14 @@ class TopMenu extends Component {
     children.push(
       <div key="reload" className="menu-button" onClick={this.reload_buttonHandler}>Обновить</div>
     );
+
+    children.push(
+      <Button variant="contained" color="primary" style={{backgroundColor: "grey", margin: 5, padding: 5, fontSize: 12}} onClick={this.openDilersForm}>
+          Изменить баннер
+      </Button>
+    )
+
+    children.push(<DilerTabsForm store={this.store}></DilerTabsForm>);
 
     return React.createElement(
       'div',

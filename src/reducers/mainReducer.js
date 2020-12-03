@@ -1,4 +1,5 @@
 import settings from './../configuration/Settings'
+import ReactDOM from 'react'
 
 let mainReducerController = (state={}, action) => {
 
@@ -86,6 +87,50 @@ let mainReducerController = (state={}, action) => {
           ...state,
           dataForStorageChanged:true,
           passStatus,
+        }
+      }
+
+      case 'DILER_FORM_ACTIVATED': {
+        //let hidden = action.data.hidden;
+        let open = action.data.openDialog;
+        return {
+          ...state,
+          setOpen: open,
+        };
+      }
+
+      case 'CHANGE_DILER_TABS':{
+        let value = action.data.value;
+        return {
+          ...state,
+          tabValue: value,
+        }
+      }
+
+      case 'DILER_FORM_CLOSE':{
+        return {
+          ...state,
+          setOpen: false,
+        }
+      }
+
+      case 'DELETE_TEXTAREA':{
+        let index = action.data.index;
+        let activeTab = action.data.activeTab;
+        let feedsContent = state.feedsContent.slice();
+        feedsContent[activeTab].splice(index,1);
+        return {
+          ...state,
+          feedsContent
+        }
+      }
+
+      case 'ADD_TEXTAREA':{
+        let feedsContent = state.feedsContent.slice();
+        feedsContent[action.data.index_1].push("njnj");
+        return {
+          ...state,
+          feedsContent
         }
       }
 
