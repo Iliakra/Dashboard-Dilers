@@ -115,22 +115,25 @@ let mainReducerController = (state={}, action) => {
       }
 
       case 'DELETE_TEXTAREA':{
-        let index = action.data.index;
+        let index_1 = action.data.index;
         let activeTab = action.data.activeTab;
-        let feedsContent = state.feedsContent.slice();
-        feedsContent[activeTab].splice(index,1);
+        let newState = Object.assign({}, state);
+        let feedsContent = newState.feedsContent;
+        feedsContent[activeTab].splice(index_1,1);
+        let newFeedsContent = feedsContent.slice();
         return {
-          ...state,
-          feedsContent
-        }
+          newState,
+          feedsContent: newFeedsContent
       }
+    }
 
       case 'ADD_TEXTAREA':{
-        let feedsContent = state.feedsContent.slice();
+        let feedsContent = state.feedsContent;
         feedsContent[action.data.index_1].push("njnj");
+        let newFeedsContent = feedsContent.slice();
         return {
           ...state,
-          feedsContent
+          feedsContent: newFeedsContent
         }
       }
 

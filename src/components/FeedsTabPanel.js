@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-class Tabpanel extends Component {
+class FeedsTabPanel extends Component {
     constructor(props) {
         super(props);
         this.store = this.props.store;
@@ -50,4 +50,4 @@ class Tabpanel extends Component {
 }
 
 
-export default Tabpanel
+export default FeedsTabPanel

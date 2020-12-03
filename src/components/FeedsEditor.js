@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Tabpanel from './Tabpanel';
+import FeedsTabPanel from './FeedsTabPanel';
 import {changeDilerTabs, closeDilerForm, deleteTextarea, addTextarea} from '../actions/appActions';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
@@ -13,7 +13,7 @@ import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 
 
-class DilerTabsForm extends Component {
+class FeedsEditor extends Component {
     constructor(props) {
         super(props);
         this.state = {hiddenForm: true, tabValue: 0, newTextareaIndex: null, feeds: {}, feedsContent: []};
@@ -106,9 +106,9 @@ class DilerTabsForm extends Component {
             )
           }
           dialogChildren.push(
-            <Tabpanel store={this.store} value={i} index={i}>
+            <FeedsTabPanel store={this.store} value={i} index={i}>
               {textareaArray}
-            </Tabpanel>
+            </FeedsTabPanel>
           )
         }
         
@@ -135,4 +135,4 @@ class DilerTabsForm extends Component {
 }
 
 
-export default DilerTabsForm
+export default FeedsEditor

@@ -27,7 +27,7 @@ import { xls, filesaver } from 'xlszipsave';
 
 import Button from '@material-ui/core/Button';
 
-import DilerTabsForm from './DilerTabsForm';
+import FeedsEditor from './FeedsEditor';
 
 
 
@@ -513,7 +513,7 @@ class TopMenu extends Component {
       </Button>
     )
 
-    children.push(<DilerTabsForm store={this.store}></DilerTabsForm>);
+    children.push(<FeedsEditor store={this.store}></FeedsEditor>);
 
     return React.createElement(
       'div',
