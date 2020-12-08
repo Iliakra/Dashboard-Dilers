@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import mainReducer from './reducers/mainReducer'
 // import settings from './configuration/Settings';
+
+
 import Container from './core/Container';
 
 import DataManager from './core/DataManager';

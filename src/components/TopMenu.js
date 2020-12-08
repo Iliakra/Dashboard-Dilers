@@ -13,8 +13,9 @@ import {
   setSortMode,
   clearFilters,
   reloadStoreData,
-  openDilerForm,
 } from '../actions/appActions';
+
+import { openFeedEditor } from '../actions/feedEditorActions';
 
 import {
   objectIsEmpty,
@@ -26,8 +27,6 @@ import settings from '../configuration/Settings.js';
 import { xls, filesaver } from 'xlszipsave';
 
 import Button from '@material-ui/core/Button';
-
-import FeedsEditor from './FeedsEditor';
 
 
 
@@ -53,7 +52,7 @@ class TopMenu extends Component {
     this.selectSortMode_changeHandler=this.selectSortMode_changeHandler.bind(this);
     this.clear_buttonHandler=this.clear_buttonHandler.bind(this);
     this.reload_buttonHandler=this.reload_buttonHandler.bind(this);
-    this.openDilersForm=this.openDilersForm.bind(this);
+    this.openFeedEditor=this.openFeedEditor.bind(this);
 
   }
 
@@ -178,9 +177,9 @@ class TopMenu extends Component {
 
   }
 
-  openDilersForm(event) {
+  openFeedEditor(event) {
     this.store.dispatch(
-      openDilerForm()
+      openFeedEditor()
     )
   }
 
@@ -508,12 +507,10 @@ class TopMenu extends Component {
     );
 
     children.push(
-      <Button variant="contained" color="primary" style={{backgroundColor: "grey", margin: 5, padding: 5, fontSize: 12}} onClick={this.openDilersForm}>
+      <Button variant="contained" color="primary" style={{backgroundColor: "grey", margin: 5, padding: 5, fontSize: 12}} onClick={this.openFeedEditor}>
           Изменить баннер
       </Button>
     )
-
-    children.push(<FeedsEditor store={this.store}></FeedsEditor>);
 
     return React.createElement(
       'div',

@@ -1,5 +1,5 @@
 import settings from './../configuration/Settings'
-import ReactDOM from 'react'
+import feedEditorReducer from './feedEditorReducer'
 
 let mainReducerController = (state={}, action) => {
 
@@ -90,53 +90,6 @@ let mainReducerController = (state={}, action) => {
         }
       }
 
-      case 'DILER_FORM_ACTIVATED': {
-        //let hidden = action.data.hidden;
-        let open = action.data.openDialog;
-        return {
-          ...state,
-          setOpen: open,
-        };
-      }
-
-      case 'CHANGE_DILER_TABS':{
-        let value = action.data.value;
-        return {
-          ...state,
-          tabValue: value,
-        }
-      }
-
-      case 'DILER_FORM_CLOSE':{
-        return {
-          ...state,
-          setOpen: false,
-        }
-      }
-
-      case 'DELETE_TEXTAREA':{
-        let index_1 = action.data.index;
-        let activeTab = action.data.activeTab;
-        let newState = Object.assign({}, state);
-        let feedsContent = newState.feedsContent;
-        feedsContent[activeTab].splice(index_1,1);
-        let newFeedsContent = feedsContent.slice();
-        return {
-          newState,
-          feedsContent: newFeedsContent
-      }
-    }
-
-      case 'ADD_TEXTAREA':{
-        let feedsContent = state.feedsContent;
-        feedsContent[action.data.index_1].push("njnj");
-        let newFeedsContent = feedsContent.slice();
-        return {
-          ...state,
-          feedsContent: newFeedsContent
-        }
-      }
-
       default:
         return state
     }
@@ -149,6 +102,7 @@ const mainReducer = (state={}, action) => {
   }
 
   state = mainReducerController(state,action);
+  state = feedEditorReducer(state,action);
 
   return state;
 }

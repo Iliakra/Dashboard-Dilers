@@ -42,7 +42,24 @@ const settings = {
     },
     passStatus:{},
     windowIsVisible:true,
-    feedsContent: [['Текст 1','Текст 2'],['Текст 2'],['Текст 3'],['Текст 4']],
+
+    modifyFeeds: [{source: 'abc', sheet: 'List1'}],
+    
+    
+    feedsContent: [ 
+                    { 
+                      id: 'List1',
+                      content: [ 
+                        {feedOne: ['Поле 1','Поле 2']}, 
+                        {feedTwo: ['Поле 3','Поле 4']},  
+                        {feedThree: ['Поле 5']}, 
+                        {feedFour: ['Поле 6']},
+                        ]
+                    },
+                  ],
+
+    //testFeeds: {One: 0, Two: 1, Three: 2, Four: 3},
+    //feedsContent: [['Текст 1','Текст 2'],['Текст 2'],['Текст 3'],['Текст 4']],
   },
 
   isMobile:isMobile(),
