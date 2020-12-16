@@ -6,21 +6,59 @@ import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
-import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
-
+import clsx from 'clsx';
+import { withStyles } from '@material-ui/core/styles';
+import CloseIcon from '@material-ui/icons/Close';
 import FeedEditorTab from './FeedEditorTab';
-import {changeFeedEditorTab, closeFeedEditor, deleteFeedEditorTab, addFeedEditorTab} from '../actions/feedEditorActions';
 import settings from '../configuration/Settings.js';
-
-
 import XlsxManager from '../core/XlsxManager.js';
+
+
+
+const styles = {
+  tabs: {
+    position: "relative",
+    backgroundColor: "white", 
+    color: "black",
+  },
+  addButton: {
+    width: "10%",
+    margin: 25,
+    display: "flex",
+    alignSelf: "flex-end",
+    fontSize: 15,
+    color: "white",
+    backgroundColor: "grey"
+  },
+  closeButton: {
+    width: "10%",  
+    display: "flex",
+    alignSelf: "flex-end",
+    zIndex: 1,
+  },
+  dialog: {
+    backgroundColor: "white",
+  }, 
+  deleteButton: {
+    width: "10%", 
+    margin: 25, 
+    display: "flex",
+  },
+  buttonPanel: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between"
+  }
+};
+
+
 
 class FeedsEditor extends Component {
   constructor(props) {
     super(props);
     this.state = {
       tabValue: 0,
+      feedsEditorisActive: false,
       newTextareaIndex: null,
       testFeeds: {},
       feedsContent: null,
@@ -31,7 +69,8 @@ class FeedsEditor extends Component {
     this.handleCloseFeedEditor = this.handleCloseFeedEditor.bind(this);
     this.handleDeleteFeedEditorTab = this.handleDeleteFeedEditorTab.bind(this);
     this.handleAddFeedEditorTab = this.handleAddFeedEditorTab.bind(this);
-
+    this.classes = this.props.classes;
+    this.className = this.props.className;
     this.source="";
     this.xlsxManager=new XlsxManager();
   }
@@ -73,8 +112,6 @@ class FeedsEditor extends Component {
       if (newSource!==this.source) {
         this.source=newSource;
         if (this.source!=null) {
-          console.log(this.source);
-
           let loadUrl="../"+this.source;
 
           if (settings.isDev) {
@@ -97,12 +134,18 @@ class FeedsEditor extends Component {
           });
         }
       } else {
-        if (this.state.sheet!=newSheet) {
+        if (this.state.sheet!==newSheet) {
           this.setState({
             ...this.state,
             sheet:newSheet,
           });
         }
+      }
+      if (state.feedsEditorisActive) {
+        this.setState({
+          ...this.state,
+          feedsEditorisActive: true,
+        });
       }
     }
   }
@@ -115,137 +158,118 @@ class FeedsEditor extends Component {
   }
 
   handleChange(event, newValue) {
-    this.store.dispatch(changeFeedEditorTab(newValue)
-    )
+    this.setState({
+      ...this.state,
+      tabValue:newValue,
+    });
   };
 
   handleCloseFeedEditor(event) {
-    this.store.dispatch(closeFeedEditor()
-    )
+    this.setState({
+      ...this.state,
+      feedsEditorisActive: false,
+    });
   };
 
   handleAddFeedEditorTab(event) {
     let activeTab = this.state.tabValue;
-    this.store.dispatch(addFeedEditorTab(activeTab))
+    //this.store.dispatch(addFeedEditorTab(activeTab))
   };
 
   handleDeleteFeedEditorTab(event){
-    this.store.dispatch(deleteFeedEditorTab()
-    )
+    //this.store.dispatch(deleteFeedEditorTab())
   };
 
   render() {
     let dialogChildren = [];
-    //
-    //
-
 
     if (
       (this.state.feedsContent)&&
       (this.state.sheet)
     ) {
+      let tabsChildren = [];
+      let tabs = [];
+      let feedsContent = this.state.feedsContent;
+      let content = feedsContent.all;
+      for (let i=0; i<content.length; i++) {
+        for (let key in content[i]) {
+          if (tabs.indexOf(key) < 0){
+            tabs.push(key);
+          }
+        }
+      }
 
+      for (let i=0; i<tabs.length; i++) {
+        tabsChildren.push(<Tab label={tabs[i]} key={i} {...this.a11yProps(i)} />);
+      }
 
-      console.log(this.state.feedsContent);
-      console.log("!!!!!!!!!!!!");
-      console.log(this.state.sheet);
+      let searchTab = tabs[this.state.tabValue];
+      let filteredFeedContent = content.map((item) => {
+        if (`${searchTab}` in item){
+          return item[searchTab];
+        } else {return null}
+      }) 
 
+      
+     let feedContent = [];
+     for (let i=0; i<filteredFeedContent.length; i++) {
+       if (filteredFeedContent[i] !== null){
+         feedContent.push(filteredFeedContent[i]);
+       }
+    }
 
+      dialogChildren.push (
+          <AppBar position="static" key="AppBar">
+            <Tabs value={this.state.tabValue} onChange={this.handleChange} aria-label="simple tabs example" className={clsx(this.classes.tabs, this.className)}>
+                {tabsChildren}
+            </Tabs>
+          </AppBar>
+      );
+
+     
+      dialogChildren.push(
+        <FeedEditorTab value={feedContent} searchTab={searchTab} key="FeedEditorTab"/>
+      );
     }
 
 
-
-    //
-    //
-    // let modify = this.state.modifyFeeds;
-    // let listNumber = modify[0].sheet;
-    // let feedsContent = this.state.feedsContent;
-    //
-    //
-    // let feedsArray = [];
-    // let listItem = feedsContent.find(item => item.id === listNumber);
-    //
-    // if (!listItem) {
-    //   return null;
-    // }
-    //
-    // let listItemContentArray = listItem.content;
-    //
-    // for (let i=0; i< listItemContentArray.length; i++) {
-    //   let newFeed = Object.keys(listItemContentArray[i]);
-    //   feedsArray.push(newFeed[0]);
-    // }
-    //
-    // let tabsChildren = [];
-    //
-    // for (let i=0; i<feedsArray.length; i++) {
-    //   tabsChildren.push(<Tab label={feedsArray[i]} {...this.a11yProps(i)} />);
-    // }
-    //
-    // dialogChildren.push (
-    //   <AppBar position="static">
-    //     <Tabs value={this.state.tabValue} onChange={this.handleChange} aria-label="simple tabs example" style={{backgroundColor: "white", color: "black"}}>
-    //       {tabsChildren}
-    //     </Tabs>
-    //   </AppBar>
-    // );
-    //
-    // for (let i=0; i<feedsArray.length; i++) {
-    //   dialogChildren.push(
-    //     <FeedEditorTab store={this.store} value={i} index={i}/>
-    //   )
-    // }
-    //
-    dialogChildren.push(
-      <Button
-        id="AddFeedButton"
-        key="AddFeedButton"
-        size="small"
-        style={{
-          width: "10%",
-          marginRight: 25,
-          display: "flex",
-          alignSelf: "flex-end",
-          fontSize: 15,
-          color: "white",
-          backgroundColor: "grey"
-        }}
-        onClick={this.handleAddFeedEditorTab}>
-            +
-      </Button>
-    );
-
     dialogChildren.push(
       <div
-
         id="buttonPanel"
         key="buttonPanel"
+        className={clsx(this.classes.buttonPanel, this.className)}>
 
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between"
-        }}>
-          <IconButton aria-label="delete" style={{width: "10%", margin: 25, display: "flex"}} onClick={this.handleDeleteFeedEditorTab}>
-              <DeleteIcon fontSize="small" />
+          <IconButton aria-label="delete" className={clsx(this.classes.deleteButton, this.className)} onClick={this.handleDeleteFeedEditorTab}>
+            <DeleteIcon fontSize="default" />
           </IconButton>
 
-          <Button size="small" style={{width: "10%", margin: 25, display: "flex"}} onClick={this.handleCloseFeedEditor}>
-              Закрыть
+          <Button
+            id="AddFeedButton"
+            key="AddFeedButton"
+            size="small"
+            className={clsx(this.classes.addButton, this.className)}
+            onClick={this.handleAddFeedEditorTab}>
+              +
           </Button>
+
       </div>
     )
 
     return (
       <div style={{color: "black"}}>
+
         <Dialog
-          open={true}
+          open={this.state.feedsEditorisActive}
           maxWidth="lg"
           aria-labelledby="form-dialog-title"
-          style={{
-            backgroundColor: "white"
-          }}>
+          className={clsx(this.classes.dialog, this.className)}>
+
+          <Button size="small" className={clsx(this.classes.closeButton, this.className)} onClick={this.handleCloseFeedEditor}>
+            <CloseIcon />
+          </Button>
+
           {dialogChildren}
+
         </Dialog>
       </div>
     );
@@ -253,15 +277,4 @@ class FeedsEditor extends Component {
 }
 
 
-export default FeedsEditor
-
-/*
-dialogChildren.push(
-          <IconButton aria-label="delete" style={{width: "10%", margin: 25, display: "flex", alignSelf: "flex-start"}}>
-              <DeleteIcon fontSize="small" />
-          </IconButton>
-        )
-
-alignSelf: "flex-end"
-alignSelf: "flex-start"
-*/
+export default withStyles(styles)(FeedsEditor)

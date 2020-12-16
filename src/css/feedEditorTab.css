@@ -1,0 +1,10 @@
+.textarea-container {
+  display: "flex";
+  margin: 30px;
+  background-color: "blue";
+}
+
+.textarea {
+  width: 50%;
+  margin-left: 30px;
+}
