@@ -20,10 +20,20 @@ import { closeFeedEditor } from '../actions/feedEditorActions';
 
 
 const styles = {
+  appBar: {
+    width: 800,
+  },
   tabs: {
+    display: "flex",
     position: "relative",
     backgroundColor: "white", 
     color: "black",
+  },
+  tab: {
+    display: "flex",
+    flexGrow: 1,
+    flexShrink: 1,
+    textTransform: "none",
   },
   addButton: {
     width: "10%",
@@ -45,7 +55,7 @@ const styles = {
   }, 
   deleteButton: {
     width: "10%", 
-    margin: 25, 
+    //margin: 25, 
     display: "flex",
   },
   buttonPanel: {
@@ -90,6 +100,7 @@ class FeedsEditor extends Component {
     this.onStoreChange();
   }
 
+  
   componentWillUnmount() {
     if (this.unsubscribe) {
       this.unsubscribe();
@@ -97,6 +108,7 @@ class FeedsEditor extends Component {
     this.mounted=false;
   }
 
+  
   getFeedSource(modifyFeeds) {
     if ((modifyFeeds)&&(modifyFeeds.length>0)) {
       return modifyFeeds[0].src;
@@ -104,6 +116,7 @@ class FeedsEditor extends Component {
     return null;
   }
 
+  
   getFeedSheet(modifyFeeds) {
     if ((modifyFeeds)&&(modifyFeeds.length>0)) {
       return modifyFeeds[0].sheet;
@@ -111,6 +124,7 @@ class FeedsEditor extends Component {
     return null;
   }
 
+  
   onStoreChange() {
     if (this.mounted) {
       let state=this.store.getState();
@@ -159,6 +173,7 @@ class FeedsEditor extends Component {
     }
   }
 
+  
   a11yProps(index) {
     return {
       id: `simple-tab-${index}`,
@@ -166,20 +181,19 @@ class FeedsEditor extends Component {
     };
   }
 
+  
   generateTabsArray() {
     let tabs = [];
     let feedsContent = this.state.feedsContent;
     let content = feedsContent.all;
     for (let i=0; i<content.length; i++) {
-      for (let key in content[i]) {
-        if (tabs.indexOf(key) < 0){
-          tabs.push(key);
-        }
-      }
+        let idName = content[i].id;
+          tabs.push(idName);
     }
     return tabs
   }
 
+  
   handleChange(event, newValue) {
     this.setState({
       ...this.state,
@@ -187,42 +201,45 @@ class FeedsEditor extends Component {
     });
   };
 
+  
   handleCloseFeedEditor(event) {
     this.store.dispatch(
       closeFeedEditor()
     )
   };
 
+  
   handleAddFeedEditorTab(event) {
-    let activeTab = this.state.tabValue;
-    let actualTabs = this.generateTabsArray();
     let feedsContent = this.state.feedsContent;
+    let newFeedsArray = feedsContent.all;
+    let index = this.state.tabValue;
+    let itemToAdd = Object.assign({}, newFeedsArray[index]);
+    let itemtoAddId = itemToAdd.id;
 
-    let addTab = actualTabs[activeTab];
-    let addTabLength = addTab.length;
-    let content = feedsContent.all;
-
-    let filteredFeedContent = content.map((item) => {
-      let similarFeeds = [];
-      let keyArray = Object.keys(item);
-      for (let i=0; i<keyArray.length; i++) {
-        let comparePart = keyArray[i].slice(0,addTabLength);
-        if (comparePart === addTab) {
-          similarFeeds.push(1);
-        }
+    newFeedsArray.push(itemToAdd);
+    let similarFeeds =[];
+   
+    for (let i=0; i < newFeedsArray.length; i++) {
+      let testPart = newFeedsArray[i].id.slice(0, itemtoAddId.length);
+      if (itemtoAddId === testPart){
+        similarFeeds.push(1);
       }
-      if (addTab in item) {
-        item[`${addTab}_${similarFeeds.length}`] = item[addTab];
+    }
+
+    let finalFeedsArray = newFeedsArray.map((item, index) => {
+      if (index === newFeedsArray.length-1 && item.id === itemtoAddId) {
+        item.id = `${itemtoAddId}_${similarFeeds.length-1}`;
       }
       return item
     })
 
     this.setState({
       ...this.state,
-      feedsContent: {all: filteredFeedContent},
+      feedsContent: {all: finalFeedsArray},
     });
   };
 
+  
   openDeleteFeedDialog(event) {
     let activeTab = this.state.tabValue;
     let actualTabs = this.generateTabsArray();
@@ -236,6 +253,7 @@ class FeedsEditor extends Component {
 
   };
 
+  
   cancelFeedDeletion(event) {
     this.setState({
       ...this.state,
@@ -244,22 +262,17 @@ class FeedsEditor extends Component {
     });
   }
 
+  
   startFeedDeletion(event) {
     let feedsContent = this.state.feedsContent;
-    let content = feedsContent.all;
+    let newFeedsArray = feedsContent.all;
+    let index = this.state.tabValue;
 
-    let filteredFeedContent = content.map((item) => {
-      for (let key in item) {
-        if (key === this.state.deleteTab) {
-          delete item[key];
-        }
-      }
-      return item
-    })
+    newFeedsArray.splice(index, 1);
 
     this.setState({
       ...this.state,
-      feedsContent: {all: filteredFeedContent},
+      feedsContent: {all: newFeedsArray},
       tabValue: 0,
       deleteTab: null,
       openDeleteDialog: false,
@@ -268,6 +281,7 @@ class FeedsEditor extends Component {
   }
 
 
+  
   render() {
     let dialogChildren = [];
 
@@ -278,31 +292,32 @@ class FeedsEditor extends Component {
       let tabsChildren = [];
       
       let feedsContent = this.state.feedsContent;
+
       let content = feedsContent.all;
+
+      let finalContent = content.map((item) => {
+        let keyArray = ['t1','t2', 'icon1'];
+        for (let i=0; i<keyArray.length; i++){
+          if (keyArray[i] in item === false) {
+            item[keyArray[i]] = '';
+          }
+        }
+        return item
+      })
+
       let actualTabs = this.generateTabsArray();
       
       for (let i=0; i<actualTabs.length; i++) {
-        tabsChildren.push(<Tab label={actualTabs[i]} key={i} {...this.a11yProps(i)} />);
+        tabsChildren.push(<Tab label={actualTabs[i]} key={i} className={clsx(this.classes.tab, this.className)}{...this.a11yProps(i)} />);
       }
 
-      let searchTab = actualTabs[this.state.tabValue];
-      let filteredFeedContent = content.map((item) => {
-        if (`${searchTab}` in item){
-          return item[searchTab];
-        } else {return null}
-      }) 
-
+      let searchTab = this.state.tabValue;
       
-      let feedContent = [];
-      for (let i=0; i<filteredFeedContent.length; i++) {
-        if (filteredFeedContent[i] !== null){
-          feedContent.push(filteredFeedContent[i]);
-        }
-      }
+      let feedContent = finalContent[searchTab];
 
       dialogChildren.push (
-        <AppBar position="static" key="AppBar">
-          <Tabs value={this.state.tabValue} onChange={this.handleChange} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)}>
+        <AppBar position="static" key="AppBar" className={clsx(this.classes.appBar, this.className)}>
+          <Tabs value={this.state.tabValue} onChange={this.handleChange} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)} variant="scrollable"  scrollButtons="auto">
             {tabsChildren}
           </Tabs>
         </AppBar>

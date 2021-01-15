@@ -36,16 +36,16 @@ class FeedEditorTab extends Component {
     render() {
       let textareaArray = [];
       let textareaContent = this.state.textareaValue;
-      let label = this.props.searchTab;
-
-      for (let i=0; i<textareaContent.length; i++){
+      let i = 0;
+      for (let key in textareaContent) {
         textareaArray.push(
           <div className="textarea-container" index={i} key={i}>
-            {label}
-            <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} key={i} id={i} placeholder="Minimum 3 rows" value={textareaContent[i]} onChange={this.handleOnChange}>
+            <p className="textarea-label">{key}</p>
+            <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} key={i} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.handleOnChange}>
             </TextareaAutosize>
           </div>
         )
+        i++;
       }  
 
         return (
