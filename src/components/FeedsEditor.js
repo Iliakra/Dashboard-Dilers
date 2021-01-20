@@ -17,7 +17,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { closeFeedEditor } from '../actions/feedEditorActions';
-
+import dirtyJson from 'dirty-json';
 
 const styles = {
   appBar: {
@@ -75,7 +75,13 @@ class FeedsEditor extends Component {
       feedsEditorisActive: false,
       newTextareaIndex: null,
       testFeeds: {},
-      feedsContent: null,
+      feedsContent: {all: 
+        [
+          {id: "lact", t1: "Любите кофе с&nbsp;молоком?", t2: "А живот против?<sup style='vertical-align:0.3em; font-size:70%;'>*</sup>", icon1: "coffee.png", options: "{}"},
+          {id: "office", t1: "Презентация?Совещание?", t2: "А живот против?<sup style='vertical-align:0.3em; font-size:70%;'>*</sup>", icon1: "case.png", options: "{label: 'Текст вверху'},{label: 'Текст внизу'}, {}, {label: 'Текст слева', editable: false},{label: 'static', abc: 'abc'}"},
+          {id: "esp", t1: "", t2: "", icon1: "", options: "{label: 'Текст вверху'},{label: 'Текст внизу'}, {label: 'Текст вверху'},{},{position: 'static'}"}
+        ]
+      },//null,
       sheet: null,
       openDeleteDialog: false,
       deleteTab: null,
@@ -144,7 +150,7 @@ class FeedsEditor extends Component {
           this.xlsxManager.load(loadUrl,(data)=>{
             this.setState({
               ...this.state,
-              feedsContent:data,
+              //feedsContent:data,
               sheet:newSheet,
             });
           });
@@ -236,6 +242,7 @@ class FeedsEditor extends Component {
     this.setState({
       ...this.state,
       feedsContent: {all: finalFeedsArray},
+      tabValue: finalFeedsArray.length-1,
     });
   };
 
@@ -284,6 +291,7 @@ class FeedsEditor extends Component {
   
   render() {
     let dialogChildren = [];
+    console.log(this.state.feedsContent);
 
     if (
       (this.state.feedsContent)&&
@@ -305,15 +313,24 @@ class FeedsEditor extends Component {
         return item
       })
 
+      //---------------------------------
+      /*
+      finalContent[0].options = '{}';
+      finalContent[1].options = '{label: "Текст вверху"},{label: "Текст внизу"}, {},{label: "Текст слева", editable: false},{position: "static", abc: "abc"}';
+      finalContent[2].options = '{label: "Текст вверху"},{label: "Текст внизу"}, {label: "Текст вверху"},{},{position: "static"}';
+      finalContent[3].options = '{label: "Текст вверху"},{label: "Текст внизу"}, {label: "Текст вверху"},{gert: "tre"},{position: "static"}';
+      finalContent[4].options = '{position: "static"},{label: "Текст внизу"}, {label: "Текст вверху"},{label: "t5"},{position: "static"}';
+      */
+      //---------------------------------
+
+     
       let actualTabs = this.generateTabsArray();
       
       for (let i=0; i<actualTabs.length; i++) {
         tabsChildren.push(<Tab label={actualTabs[i]} key={i} className={clsx(this.classes.tab, this.className)}{...this.a11yProps(i)} />);
       }
 
-      let searchTab = this.state.tabValue;
       
-      let feedContent = finalContent[searchTab];
 
       dialogChildren.push (
         <AppBar position="static" key="AppBar" className={clsx(this.classes.appBar, this.className)}>
@@ -323,7 +340,10 @@ class FeedsEditor extends Component {
         </AppBar>
       );
 
-     
+      let searchTab = this.state.tabValue;
+      
+      let feedContent = finalContent[searchTab];
+   
       dialogChildren.push(
         <FeedEditorTab value={feedContent} searchTab={searchTab} key="FeedEditorTab"/>
       );
@@ -401,3 +421,11 @@ class FeedsEditor extends Component {
 
 
 export default withStyles(styles)(FeedsEditor)
+
+/*
+
+{all: [{id: "lact", t1: "Любите кофе с&nbsp;молоком?", t2: "А живот против?<sup style="vertical-align:0.3em; font-size:70%;">*</sup>", icon1: "coffee.png", options: "{}"},
+  {id: "office", t1: "Презентация?
+↵Совещание?", t2: "А живот против?<sup style="vertical-align:0.3em; font-size:70%;">*</sup>", icon1: "case.png", options: "{label: "Текст вверху"},{label: "Текст внизу"}, {}…editable: false},{position: "static", abc: "abc"}"},
+id: "esp", t1: "", t2: "", icon1: "", options: "{label: "Текст вверху"},{label: "Текст внизу"}, {label: "Текст вверху"},{},{position: "static"}"]}
+*/
