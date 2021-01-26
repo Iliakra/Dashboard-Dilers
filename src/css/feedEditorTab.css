@@ -1,10 +1,14 @@
 .textarea-container {
-  display: "flex";
-  margin: 30px;
-  background-color: "blue";
+  display: flex;
+  justify-content: space-between;
+}
+
+.textarea-label {
+  display: flex;
+  align-self: flex-start;
 }
 
 .textarea {
-  width: 100%;
-  margin-bottom: 2%;
+  display: flex;
+  align-self: flex-end;
 }

@@ -29,6 +29,7 @@ class XlsxManager {
   }
 
   convertSheetsToTables(data) {
+    console.log('data', data);
     let result={};
     for (let id in data) {
 
@@ -38,6 +39,7 @@ class XlsxManager {
 
       let rows=[];
       let cells=data[id];
+      console.log('cells',cells);
       for (let cellId in cells) {
         let y=cellId.substr(1)-1;
         let x=cellId.substr(0,1);//cellId.charCodeAt(0)-("A").charCodeAt(0);
@@ -46,7 +48,14 @@ class XlsxManager {
         }
         rows[y][x]=cells[cellId].v;
       }
-      rows.splice(0,2);
+      
+      rows.splice(0,1);
+      let options = rows[0];
+      rows.splice(0,1);
+
+      let optionsArray = Object.values(options);
+      optionsArray.splice(0,1);
+
 
       if (rows.length>1) {
         let indexRow=(rows[0]);
@@ -59,19 +68,12 @@ class XlsxManager {
           }
           lines.push(fields);
         }
+        lines.push(optionsArray);
         result[id]=lines;
       }
 
 
     }
-
-
-
-
-
-
-
-
     return result;
   }
 

@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
 import Box from '@material-ui/core/Box';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import dirtyJson from 'dirty-json';
 
 
 class FeedEditorTab extends Component {
     constructor(props) {
       super(props);
       this.state = {
-        textareaValue: this.props.value,
+        textareaValue: this.props.feedContent,
+        options: this.props.options,
+        searchTab: this.props.searchTab
       }
       this.handleOnChange = this.handleOnChange.bind(this);
     }
 
     componentDidUpdate(prevProps) {
-      if (this.props.value !== prevProps.value) {
+      if (this.props.feedContent !== prevProps.feedContent) {
         this.setState({
           ...this.state,
-          textareaValue:  this.props.value
+          textareaValue:  this.props.feedContent
         })
       }
     }
@@ -25,11 +26,11 @@ class FeedEditorTab extends Component {
     handleOnChange(event) {
       let index = event.target.id;
       let newValue = event.target.value;
-      let feedsContent = this.props.value;
-      feedsContent[index] = newValue;
+      let newFeedContent = this.props.feedContent;
+      newFeedContent[index] = newValue;
       this.setState({
         ...this.state,
-        textareaValue: feedsContent
+        textareaValue: newFeedContent
       })
     }
 
@@ -37,50 +38,43 @@ class FeedEditorTab extends Component {
     render() {
       let textareaArray = [];
       let textareaContent = this.state.textareaValue;
-      let i = 0;
-      let labelJson = textareaContent.options;
-      
-      if (labelJson) {
-        labelJson=labelJson.replace(/,\s*\}/gi,"}").replace(/,\s*\]/gi,"]");
-        try {
-          labelJson = dirtyJson.parse(labelJson);
-          console.log('options',labelJson[0].value[1].value);
-        } catch (e) {
-          // console.log(); 
-        }
+      console.log(textareaContent);
+      let optionsArray = this.state.options;
+      console.log(optionsArray);
+      let i=0;
 
-        let optionsLength = Object.keys(labelJson).length;
-
-        for (let key in textareaContent) {
-          if (optionsLength > 0 && labelJson[i].value !== null && labelJson[i].value.length > 1) {
-            let editable = false;
-            if (labelJson[i].value[1].key === 'editable' && labelJson[i].value[1].value === true) {
-                editable = true;
+      for (let key in textareaContent) {
+        if (key === 'id') {
+          textareaArray.push(
+            <div className="textarea-container" key={i}>
+              <p className="textarea-label">{key}</p>
+              <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.handleOnChange}>
+              </TextareaAutosize>
+            </div>
+          ) 
+        } else if (i < optionsArray.length) {
+          if (typeof optionsArray[i]['editable'] !== 'undefined') {
+            if (optionsArray[i]['editable'] === true || optionsArray[i]['editable'] === 'yes' || optionsArray[i]['editable'] === 1) {
+              textareaArray.push(
+                <div className="textarea-container" key={i}>
+                  <p className="textarea-label">{typeof optionsArray[i]['label'] !== 'undefined' &&  optionsArray[i]['label'] !== ''? optionsArray[i].label : key}</p>
+                  <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.handleOnChange}>
+                  </TextareaAutosize>
+                </div>
+              )  
+              i++
+            } else {
+              i++
             }
-            textareaArray.push(
-              <div className="textarea-container" index={i} key={i}>
-                <p className="textarea-label">{labelJson[i].value[0].key === 'label' ? labelJson[i].value[0].value : key}</p>
-                <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} key={i} id={key} placeholder="Minimum 3 rows" value={editable ? textareaContent[key] : ''} onChange={this.handleOnChange}>
-                </TextareaAutosize>
-              </div>
-            )
-            i++;
           } else {
-            textareaArray.push(
-              <div className="textarea-container" index={i} key={i}>
-                <p className="textarea-label">{key}</p>
-                <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} key={i} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.handleOnChange}>
-                </TextareaAutosize>
-              </div>
-            )
-            i++;
-          }        
+            i++
+          }
         }  
       }
 
         return (
-          <Box >
-            {textareaArray}
+          <Box className="textarea-containers-box">
+            {textareaArray}   
           </Box>  
         );
     }
@@ -88,5 +82,3 @@ class FeedEditorTab extends Component {
 
 
 export default FeedEditorTab
-
-//labelJson[i].value[1] && labelJson[i].value[1].key === 'editable' && labelJson[i].value[1].value === true ? 

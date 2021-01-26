@@ -21,6 +21,7 @@ import './css/menu.css';
 import './css/buttons.css';
 import './css/app.css';
 import './css/feedEditorTab.css';
+import './css/preloader.css';
 
 const Store = createStore(
   mainReducer,
