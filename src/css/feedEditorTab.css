@@ -6,9 +6,15 @@
 .textarea-label {
   display: flex;
   align-self: flex-start;
+  font-size: 0.9vw;
+  margin-left: 2vw;
 }
 
 .textarea {
+  width: 70%;
   display: flex;
   align-self: flex-end;
+  font-size: 0.9vw;
+  margin-right: 2vw;
+  margin-bottom: 1vw;
 }

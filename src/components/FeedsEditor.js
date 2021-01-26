@@ -34,30 +34,29 @@ const styles = {
   },
   tab: {
     display: "flex",
+    //height: "0.5vw",
     //flexGrow: 1,
     //flexShrink: 1,
     textTransform: "none",
-    //fontSize: "0.5vw"
+    fontSize: "0.9vw"
   },
   dialog: {
     position: "relative",
     backgroundColor: "transparent",
   }, 
   bottomPanel: {
-    position: "absolute",
-    bottom: 0,
     width: "40vw",
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
     backgroundColor: "white",
-    marginTop: "20%",
+    marginTop: "5vh",
     zIndex: 1,
   },
   cancelButton: {
     width: "1%",  
     display: "flex",
-    fontSize: "70%",
+    fontSize: "0.6vw",
     margin: "1%",
     marginLeft: "5%",
   },
@@ -77,7 +76,7 @@ const styles = {
     width: "10%",
     margin: "2%",
     display: "flex",
-    fontSize: "60%",
+    fontSize: "0.6vw",
     color: "white",
     backgroundColor: "red",
     marginRight: "5%"
@@ -86,8 +85,8 @@ const styles = {
     position: "relative",
     width: "40vw",
     height: "20vw",
-    marginTop: "5vh",
-    marginBottom: "5vh"
+    marginTop: "10vh",
+    marginBottom: "7vh"
   },
 };
 
