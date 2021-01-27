@@ -29,7 +29,6 @@ class XlsxManager {
   }
 
   convertSheetsToTables(data) {
-    console.log('data', data);
     let result={};
     for (let id in data) {
 
@@ -39,7 +38,7 @@ class XlsxManager {
 
       let rows=[];
       let cells=data[id];
-      console.log('cells',cells);
+      
       for (let cellId in cells) {
         let y=cellId.substr(1)-1;
         let x=cellId.substr(0,1);//cellId.charCodeAt(0)-("A").charCodeAt(0);
