@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import Box from '@material-ui/core/Box';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import clsx from 'clsx';
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = {
+  list: {
+    height: "40vh",
+    overflow: 'auto',
+  },
+};
 
 
 class FeedEditorTab extends Component {
@@ -12,6 +23,9 @@ class FeedEditorTab extends Component {
       options: this.props.options,
       searchTab: this.props.searchTab
     }
+    this.classes = this.props.classes;
+    this.className = this.props.className;
+
     this.onChangeTextareaValue = this.onChangeTextareaValue.bind(this);
   }
 
@@ -51,11 +65,11 @@ class FeedEditorTab extends Component {
       if (key === 'id') {
 
         textareaArray.push(
-          <div className="textarea-container" key="id-textarea">
+          <ListItem className="textarea-container" key="id-textarea">
             <p className="textarea-label">{key}</p>
             <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.onChangeTextareaValue}>
             </TextareaAutosize>
-          </div>
+          </ListItem>
         ) 
 
       } else if (i < optionsArray.length) {
@@ -65,11 +79,11 @@ class FeedEditorTab extends Component {
           if (optionsArray[i]['editable'] === true || optionsArray[i]['editable'] === 'yes' || optionsArray[i]['editable'] === 1) {
 
             textareaArray.push(
-              <div className="textarea-container" key={i}>
+              <ListItem className="textarea-container" key={i}>
                 <p className="textarea-label">{typeof optionsArray[i]['label'] !== 'undefined' &&  optionsArray[i]['label'] !== ''? optionsArray[i].label : key}</p>
                 <TextareaAutosize className="textarea" aria-label="minimum height" rowsMin={3} id={key} placeholder="Minimum 3 rows" value={textareaContent[key]} onChange={this.onChangeTextareaValue}>
                 </TextareaAutosize>
-              </div>
+              </ListItem>
             )  
             i++
 
@@ -87,12 +101,12 @@ class FeedEditorTab extends Component {
     }
 
     return (
-      <Box className="textarea-containers-box">
+      <List className={clsx(this.classes.list, this.className)}>
         {textareaArray}   
-      </Box>  
+      </List>  
     );
   }
 }
 
 
-export default FeedEditorTab
+export default withStyles(styles)(FeedEditorTab)

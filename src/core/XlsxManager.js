@@ -1,4 +1,5 @@
 import XLSX from 'xlsx';
+import dirtyJson from 'dirty-json';
 
 class XlsxManager {
 
@@ -35,10 +36,8 @@ class XlsxManager {
       if ((id.indexOf("<")===0)&&(id.indexOf(">")===id.length-1)) {
         continue;
       }
-
       let rows=[];
       let cells=data[id];
-      
       for (let cellId in cells) {
         let y=cellId.substr(1)-1;
         let x=cellId.substr(0,1);//cellId.charCodeAt(0)-("A").charCodeAt(0);
@@ -51,14 +50,34 @@ class XlsxManager {
       rows.splice(0,1);
       let options = rows[0];
       rows.splice(0,1);
-
+    
       let optionsArray = Object.values(options);
       optionsArray.splice(0,1);
-
-
+      let finalOptionsData = [];
+      if (optionsArray) {
+        for (let i=0; i < optionsArray.length; i++) {
+          let optionsItem=optionsArray[i].replace(/,\s*\}/gi,"}").replace(/,\s*\]/gi,"]");
+          try {
+            optionsItem = dirtyJson.parse(optionsItem);
+            finalOptionsData.push(optionsItem);
+          } catch (e) {
+            // console.log();
+          }
+        }
+      }
       if (rows.length>1) {
         let indexRow=(rows[0]);
+        let indexRowKeys = Object.keys(indexRow);
         let lines=[];
+      
+        for (let i = 1; i < indexRowKeys.length; i++) {
+          for (let j=1; j<rows.length; j++) {
+            if (!(indexRowKeys[i] in rows[j])) {
+              rows[j][indexRowKeys[i]] = '';
+            }
+          }         
+        }
+
         for (let i = 1; i < rows.length; i++) {
           let row=rows[i];
           let fields={};
@@ -67,12 +86,11 @@ class XlsxManager {
           }
           lines.push(fields);
         }
-        lines.push(optionsArray);
+        lines.push(finalOptionsData);
         result[id]=lines;
       }
-
-
     }
+    
     return result;
   }
 

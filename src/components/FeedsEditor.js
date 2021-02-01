@@ -15,76 +15,88 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { closeFeedEditor } from '../actions/feedEditorActions';
-import dirtyJson from 'dirty-json';
+import { openFeedEditor, closeFeedEditor } from '../actions/feedEditorActions';
 import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import { relative } from 'path';
 
 
 const styles = {
-  appBar: {
-    position: "fixed",
-    width: "40vw",
-  },
-  tabs: {
-    display: "flex",
+
+  mainContainer: {
     position: "relative",
-    backgroundColor: "white", 
+    width: "100%",
+    height: "100%",
+  },
+
+  backGroundContainer: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "grey",
+    opacity: 0.7,
+  },
+
+  gridBox: {
+    width: "40%",
+    position: "absolute",
+    left: "30%",
+    top: "25%",
+    backgroundColor: "white",
+  },
+
+  middleGridItem: {
+    width: "100%",
+  },
+
+  tabs: {
+    backgroundColor: "white",
     color: "black",
   },
-  tab: {
-    display: "flex",
-    textTransform: "none",
-    fontSize: "0.9vw"
-  },
-  dialog: {
-    position: "relative",
-    backgroundColor: "transparent",
-  }, 
+
   bottomPanel: {
-    width: "40vw",
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
-    backgroundColor: "white",
-    marginTop: "5vh",
-    zIndex: 1,
+    paddingLeft: "2%",
+    paddingRight: "2%",
+    overflow: "auto"
   },
+
   cancelButton: {
-    width: "1%",  
-    display: "flex",
-    fontSize: "0.6vw",
-    margin: "1%",
-    marginLeft: "5%",
+    fontSize: "90%",
+    marginTop: "1%",
+    marginBottom: "1%",
   },
+
   deleteFeedButton: {
-    width: "10%",  
-    display: "flex",
+    marginTop: "1%",
+    marginBottom: "1%",
   },
+
   addFeedButton: {
-    width: "10%",
-    margin: "2%",
-    display: "flex",
-    fontSize: "80%",
+    fontSize: "1.5em",
     color: "white",
-    backgroundColor: "grey"
+    backgroundColor: "grey",
+    marginTop: "1%",
+    marginBottom: "1%",
   },
+
   saveButton: {
-    width: "10%",
-    margin: "2%",
-    display: "flex",
-    fontSize: "0.6vw",
+    fontSize: "90%",
+    marginTop: "1%",
+    marginBottom: "1%",
+    marginLeft: 10,
     color: "white",
-    backgroundColor: "red",
-    marginRight: "5%"
+    backgroundColor: "red"
   },
-  feedEditorTabContainer: {
-    position: "relative",
-    width: "40vw",
-    height: "20vw",
-    marginTop: "10vh",
-    marginBottom: "7vh"
-  },
+
+  buttonText: {
+    display: "block",
+  }
+
 };
 
 
@@ -94,21 +106,24 @@ class FeedsEditor extends Component {
     super(props);
     this.state = {
       tabValue: 0,
-      feedsEditorisActive: false,
+      contentReady: false,
       feedsContent: null,
       optionsContent: null,
       sheet: null,
+      wrongContent:false,
       openDeletionDialog: false,
     };
-    
+
     this.store = this.props.store;
-    this.changeFeed=this.changeFeed.bind(this);
+    this.tabs_changeHandler=this.tabs_changeHandler.bind(this);
+
     this.closeFeedsEditor = this.closeFeedsEditor.bind(this);
     this.openFeedDeletionDialog = this.openFeedDeletionDialog.bind(this);
     this.addFeed = this.addFeed.bind(this);
     this.generateTabsArray = this.generateTabsArray.bind(this);
     this.cancelFeedDeletion = this.cancelFeedDeletion.bind(this);
     this.deleteFeed = this.deleteFeed.bind(this);
+
     this.classes = this.props.classes;
     this.className = this.props.className;
     this.source="";
@@ -121,7 +136,7 @@ class FeedsEditor extends Component {
     this.onStoreChange();
   }
 
-  
+
   componentWillUnmount() {
     if (this.unsubscribe) {
       this.unsubscribe();
@@ -129,7 +144,7 @@ class FeedsEditor extends Component {
     this.mounted=false;
   }
 
-  
+
   getFeedSource(modifyFeeds) {
     if ((modifyFeeds)&&(modifyFeeds.length>0)) {
       return modifyFeeds[0].src;
@@ -137,21 +152,25 @@ class FeedsEditor extends Component {
     return null;
   }
 
-  
+
   getFeedSheet(modifyFeeds) {
     if ((modifyFeeds)&&(modifyFeeds.length>0)) {
+      if (!modifyFeeds[0].sheet) {
+        return "default";
+      }
       return modifyFeeds[0].sheet;
     }
     return null;
   }
 
-  
+
   onStoreChange() {
     if (this.mounted) {
       let state=this.store.getState();
 
       let newSource=this.getFeedSource(state.modifyFeeds);
       let newSheet=this.getFeedSheet(state.modifyFeeds);
+      //console.log('newSheet',newSheet);
 
       if (newSource!==this.source) {
         this.source=newSource;
@@ -163,29 +182,25 @@ class FeedsEditor extends Component {
           }
 
           this.xlsxManager.load(loadUrl,(data)=>{
-            let feedsContentData = data.all;
-            let optionsData = feedsContentData[feedsContentData.length-1];
-            let finalOptionsData = [];
-            if (optionsData) {
-              for (let i=0; i < optionsData.length; i++) {
-                let optionsItem=optionsData[i].replace(/,\s*\}/gi,"}").replace(/,\s*\]/gi,"]");
-                try {
-                  optionsItem = dirtyJson.parse(optionsItem);
-                  finalOptionsData.push(optionsItem);
-                } catch (e) {
-                  // console.log(); 
-                }
-              }            
+            let feedsContentData = data.all;//data[newSheet];
+            if (feedsContentData) {
+              let optionsData = feedsContentData[feedsContentData.length-1];
+              feedsContentData.pop();
+              this.setState({
+                ...this.state,
+                feedsContent: feedsContentData,
+                optionsContent: optionsData,
+                sheet:newSheet,
+                contentReady: true,
+                wrongContent:false
+              });           
+            } else {
+              this.setState({
+                ...this.state,
+                wrongContent: true,
+              });
             }
-            feedsContentData.pop();
-            this.setState({
-              ...this.state,
-              feedsContent: feedsContentData,
-              optionsContent:finalOptionsData,
-              sheet:newSheet,
-            });
           });
-
         } else {
           this.setState({
             ...this.state,
@@ -201,16 +216,10 @@ class FeedsEditor extends Component {
           });
         }
       }
-      if (state.feedsEditorisActive) {
-        this.setState({
-          ...this.state,
-          feedsEditorisActive: true,
-        });
-      }
     }
   }
 
-  
+
   a11yProps(index) {
     return {
       id: `simple-tab-${index}`,
@@ -218,7 +227,7 @@ class FeedsEditor extends Component {
     };
   }
 
-  
+
   generateTabsArray() {
     let tabs = [];
     let feedsContent = this.state.feedsContent;
@@ -230,23 +239,22 @@ class FeedsEditor extends Component {
     return tabs
   }
 
-  
-  changeFeed(event, newValue) {
+  closeFeedsEditor() {
+    this.store.dispatch(
+      closeFeedEditor()
+    )
+  }
+
+
+  tabs_changeHandler(event, newValue) {
     this.setState({
       ...this.state,
       tabValue:newValue,
     });
   };
 
-  
-  closeFeedsEditor(event) {
-    this.store.dispatch(
-      closeFeedEditor()
-    )
-  };
 
-  
-  addFeed(event) {
+  addFeed() {
     let feedsContent = this.state.feedsContent;
     let newFeedsArray = feedsContent;
     let index = this.state.tabValue;
@@ -255,7 +263,7 @@ class FeedsEditor extends Component {
 
     newFeedsArray.push(itemToAdd);
     let similarFeeds =[];
-   
+
     for (let i=0; i < newFeedsArray.length; i++) {
       let testPart = newFeedsArray[i].id.slice(0, itemtoAddId.length);
       if (itemtoAddId === testPart){
@@ -277,8 +285,8 @@ class FeedsEditor extends Component {
     });
   };
 
-  
-  openFeedDeletionDialog(event) {
+
+  openFeedDeletionDialog() {
     let activeTab = this.state.tabValue;
     let actualTabs = this.generateTabsArray();
     let deleteTab = actualTabs[activeTab];
@@ -291,8 +299,8 @@ class FeedsEditor extends Component {
 
   };
 
-  
-  cancelFeedDeletion(event) {
+
+  cancelFeedDeletion() {
     this.setState({
       ...this.state,
       deleteTab: null,
@@ -300,8 +308,8 @@ class FeedsEditor extends Component {
     });
   }
 
-  
-  deleteFeed(event) {
+
+  deleteFeed() {
     let feedsContent = this.state.feedsContent;
     let newFeedsArray = feedsContent;
     let index = this.state.tabValue;
@@ -319,136 +327,129 @@ class FeedsEditor extends Component {
   }
 
 
-  
+
   render() {
-    let dialogChildren = [];
+
+    let children = [];
+    children.push(this.props.children);
     
-    if (
-      (this.state.feedsContent)&&
-      (this.state.sheet)
-    ) {
-      let tabsChildren = [];
-      
-      let feedsContent = this.state.feedsContent;
-
-      let content = feedsContent;
-
+    if (this.state.contentReady) {
+      let dialogChildren = [];
       let actualTabs = this.generateTabsArray();
-
-      let searchTab = this.state.tabValue;
-
-      let finalContent = content.map((item) => {
-        let keyArray = ['t1','t2', 'icon1'];
-        for (let i=0; i<keyArray.length; i++){
-          if (keyArray[i] in item === false) {
-            item[keyArray[i]] = '';
-          }
-        }
-        return item
-      })
-
-      let feedContent = finalContent[searchTab];
-
-      
+      let tabsChildren = [];
       for (let i=0; i<actualTabs.length; i++) {
-        tabsChildren.push(<Tab label={actualTabs[i]} key={i} className={clsx(this.classes.tab, this.className)}{...this.a11yProps(i)} />);
+        tabsChildren.push(<Tab label={actualTabs[i]} key={i} {...this.a11yProps(i)} />);
       }
+      dialogChildren.push (
+        <Grid item xs={12} key="topGridItem">
+          <AppBar position="static" key="AppBar">
+            <Tabs value={this.state.tabValue} onChange={this.tabs_changeHandler} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)} variant="scrollable" scrollButtons="auto">
+              {tabsChildren}
+            </Tabs>
+          </AppBar>
+        </Grid>
+        
+      );
+
+      dialogChildren.push(
+        <Grid
+          key="middleGridItem"
+          className={clsx(this.classes.middleGridItem, this.className)}
+        >
+          <FeedEditorTab feedContent={this.state.feedsContent[this.state.tabValue]} options={this.state.optionsContent} searchTab={this.state.tabValue} key="FeedEditorTab"/>
+        </Grid>
+      );
 
 
       dialogChildren.push (
-        <AppBar position="static" key="AppBar" className={clsx(this.classes.appBar, this.className)}>
-          <Tabs value={this.state.tabValue} onChange={this.changeFeed} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)} variant="scrollable" scrollButtons="auto">
-            {tabsChildren}
-          </Tabs>
-        </AppBar>
+        <Grid item xs={12} key="bottomGridItem">
+          <Box
+          key="bottomPanel"
+          boxShadow={4}
+          className={clsx(this.classes.bottomPanel, this.className)}
+        >
+            <Button size="small" key="closeFeedDialogButton" className={clsx(this.classes.cancelButton, this.className)} onClick={this.closeFeedsEditor}>
+              Отмена
+            </Button>
+            <IconButton aria-label="delete" key="deleteFeedButton" className={clsx(this.classes.deleteFeedButton, this.className)} onClick={this.openFeedDeletionDialog}>
+              <DeleteIcon fontSize="default" key="deleteIcon"/>
+            </IconButton>
+            <Button
+              id="AddFeedButton"
+              key="AddFeedButton"
+              size="small"
+              className={clsx(this.classes.addFeedButton, this.className)}
+              onClick={this.addFeed}>
+                +
+            </Button>
+            <Button size="small" key="saveButton" className={clsx(this.classes.saveButton, this.className)}>
+              <p className={clsx(this.classes.buttonText, this.className)}>Сохранить</p>
+            </Button>
+          </Box>
+        </Grid>
       );
-        
-   
-      dialogChildren.push(
-        <div className={clsx(this.classes.feedEditorTabContainer, this.className)} key="FeedEditorTabContainer">
-          <FeedEditorTab feedContent={feedContent} options={this.state.optionsContent} searchTab={searchTab} key="FeedEditorTab"/>    
-        </div>
+
+      if (this.state.openDeletionDialog) {
+        dialogChildren.push(
+          <Dialog
+            open={true}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            key="deleteDialog"
+          >
+            <DialogTitle id="alert-dialog-title" key="dialogTitle">{`Удаление фида ${this.state.deleteTab}`}</DialogTitle>
+            <DialogContent key="dialogContent">
+              <DialogContentText id="alert-dialog-description" key="dialogContentText">
+              Вы действительно хотите удалить фид {this.state.deleteTab} ?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions key="dialogActions">
+              <Button color="primary" key="cancelDeletionButton" onClick={this.cancelFeedDeletion}>
+              Отменить
+              </Button>
+              <Button color="primary" key="deletionButton" onClick={this.deleteFeed} autoFocus>
+              Удалить
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )
+      }
+
+      children.push(
+        <Box
+          open={true}
+          key="mainContainer"
+          className={clsx(this.classes.mainContainer, this.className)}>
+          <Box className={clsx(this.classes.backGroundContainer, this.className)}></Box>
+          <Box className={clsx(this.classes.gridBox, this.className)}>
+            <Grid container spacing={0}>            
+              {dialogChildren}            
+            </Grid>
+          </Box>
+        </Box>
       );
-    }
 
-    dialogChildren.push(
-      <Dialog
-        open={this.state.openDeletionDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        key="deleteDialog"
-      >
-        <DialogTitle id="alert-dialog-title" key="dialogTitle">{`Удаление фида ${this.state.deleteTab}`}</DialogTitle>
-
-        <DialogContent key="dialogContent">
-
-          <DialogContentText id="alert-dialog-description" key="dialogContentText">
-            Вы действительно хотите удалить фид {this.state.deleteTab} ?
-          </DialogContentText>
-
-        </DialogContent>
-
-        <DialogActions key="dialogActions">
-
-          <Button color="primary" key="cancelDeletionButton" onClick={this.cancelFeedDeletion}>
-            Отменить
-          </Button>
-          <Button color="primary" key="deletionButton" onClick={this.deleteFeed} autoFocus>
-            Удалить
-          </Button>
-
-        </DialogActions>
-
-      </Dialog>
-    )
-
-    return (
-      <div style={{color: "black"}}>
-        {this.state.feedsEditorisActive} ? 
-          (
-            <Dialog
-              open={this.state.feedsEditorisActive}
-              maxWidth={false}
-              scroll='paper'
-              aria-labelledby="form-dialog-title"
-              key="changeFeedContentDialog"
-              className={clsx(this.classes.dialog, this.className)}>
-              
-              {dialogChildren}
-
-              <Box key="bottomPanel" boxShadow={3} className={clsx(this.classes.bottomPanel, this.className)}>
-
-                <Button size="small" key="closeFeedDialogButton" className={clsx(this.classes.cancelButton, this.className)} onClick={this.closeFeedsEditor}>
-                  Отмена
-                </Button>
-        
-                <IconButton aria-label="delete" key="deleteFeedButton" className={clsx(this.classes.deleteFeedButton, this.className)} onClick={this.openFeedDeletionDialog}>
-                  <DeleteIcon fontSize="default" key="deleteIcon"/>
-                </IconButton>
-        
-                <Button
-                  id="AddFeedButton"
-                  key="AddFeedButton"
-                  size="small"
-                  className={clsx(this.classes.addFeedButton, this.className)}
-                  onClick={this.addFeed}>
-                    +
-                </Button>
-
-                <Button size="small" key="saveButton" className={clsx(this.classes.saveButton, this.className)}>
-                  Сохранить
-                </Button>
-
-              </Box>
-
-            </Dialog>
-          ) : (
-            <div className="loader-container" key="preloader">
+    } else {
+      if (this.state.wrongContent) {
+        children.push(
+          <div key="error">
+          ОШИБКА
+          </div>
+        );
+      } else {
+        children.push(
+          <div className="loader-overlay" key="preloader">
+            <div className="loader-container">
               <div className="loader"></div>
             </div>
-            )
-      </div>
-    );
+          </div>
+        );
+      }
+
+    }
+
+
+    return children;
   }
 }
 
