@@ -6,10 +6,11 @@
 
 .textarea-label {
   width: 20%;
-  height: 10%;
+  align-self: start;
   line-height: normal;
   font-size: 1.2em;
   font-weight: bold;
+  margin: 0;
 }
 
 .textarea {

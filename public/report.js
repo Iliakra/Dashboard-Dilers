@@ -2,7 +2,7 @@ window.report={
   "name": "Adwise/JnJ Motilegas Nov 2020",
   "path": "/Adwise/JnJ Motilegas Nov 2020",
   "modifyCreatives": [ { "src": "creatives.xlsx", "sheet": "default" } ],
-  "modifyFeeds": [ { "src": "feed.xlsx", "sheet": "default" } ],
+  "modifyFeeds": [ { "src": "feed.xlsx", "sheet": "all" } ],
   "sections": {},
   "publishers": {
     "Dv360": 7,

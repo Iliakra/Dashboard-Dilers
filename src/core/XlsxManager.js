@@ -38,6 +38,7 @@ class XlsxManager {
       }
       let rows=[];
       let cells=data[id];
+      console.log(cells);
       for (let cellId in cells) {
         let y=cellId.substr(1)-1;
         let x=cellId.substr(0,1);//cellId.charCodeAt(0)-("A").charCodeAt(0);
@@ -65,6 +66,7 @@ class XlsxManager {
           }
         }
       }
+    
       if (rows.length>1) {
         let indexRow=(rows[0]);
         let indexRowKeys = Object.keys(indexRow);
@@ -92,6 +94,20 @@ class XlsxManager {
     }
     
     return result;
+  }
+
+  write(url,data) {
+    let dataJson = JSON.stringify(data);
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        console.log('OK');
+      } 
+    };
+    xhr.send(dataJson);
   }
 
 }

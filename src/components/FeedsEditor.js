@@ -15,7 +15,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { openFeedEditor, closeFeedEditor } from '../actions/feedEditorActions';
+import { closeFeedsEditor } from '../actions/feedsEditorActions';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import { relative } from 'path';
@@ -27,6 +27,7 @@ const styles = {
     position: "relative",
     width: "100%",
     height: "100%",
+    zIndex: 1,
   },
 
   backGroundContainer: {
@@ -40,10 +41,10 @@ const styles = {
   },
 
   gridBox: {
-    width: "40%",
+    width: "80%",
     position: "absolute",
-    left: "30%",
-    top: "25%",
+    left: "10%",
+    top: "10%",
     backgroundColor: "white",
   },
 
@@ -51,49 +52,74 @@ const styles = {
     width: "100%",
   },
 
+  appBar: {
+    position: "relative",
+    zIndex: 1,
+  },
+
   tabs: {
+    display: "flex",
     backgroundColor: "white",
-    color: "black",
+    color: "black",  
+  },
+
+  tab: {
+    flexShrink: 1,
+    flexGrow: 1,
+    overFlow: "hidden",
+    '&:hover': {
+      backgroundColor: "#DCDCDC",
+    }
   },
 
   bottomPanel: {
+    position: "relative",
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
     paddingLeft: "2%",
     paddingRight: "2%",
-    overflow: "auto"
+    paddingTop: "0.5%",
+    paddingBottom: "0.5%",
+    zIndex: 1,
   },
 
   cancelButton: {
+    padding: 10,
     fontSize: "90%",
-    marginTop: "1%",
-    marginBottom: "1%",
+    marginRight: "35%",
+    marginTop: "auto",
+    marginBottom: "auto",
+
   },
 
   deleteFeedButton: {
-    marginTop: "1%",
-    marginBottom: "1%",
+    width: 40,
+    height: 40,
+    marginTop: "auto",
+    marginBottom: "auto",
   },
 
   addFeedButton: {
-    fontSize: "1.5em",
-    color: "white",
-    backgroundColor: "grey",
-    marginTop: "1%",
-    marginBottom: "1%",
+    fontSize: "2em",
+    color: "grey",
+    height: 40,
+    marginTop: "auto",
+    marginBottom: "auto",
+    borderRadius: "100%"
   },
 
   saveButton: {
     fontSize: "90%",
-    marginTop: "1%",
-    marginBottom: "1%",
-    marginLeft: 10,
-    color: "white",
-    backgroundColor: "red"
+    padding: 15,
+    height: 40,
+    color: "black",
+    '&:hover': {
+      backgroundColor: "#DCDCDC",
+    }
   },
 
-  buttonText: {
+  saveButtonText: {
     display: "block",
   }
 
@@ -116,13 +142,13 @@ class FeedsEditor extends Component {
 
     this.store = this.props.store;
     this.tabs_changeHandler=this.tabs_changeHandler.bind(this);
-
     this.closeFeedsEditor = this.closeFeedsEditor.bind(this);
     this.openFeedDeletionDialog = this.openFeedDeletionDialog.bind(this);
     this.addFeed = this.addFeed.bind(this);
     this.generateTabsArray = this.generateTabsArray.bind(this);
     this.cancelFeedDeletion = this.cancelFeedDeletion.bind(this);
     this.deleteFeed = this.deleteFeed.bind(this);
+    this.saveFeedsContentHandler = this.saveFeedsContentHandler.bind(this);
 
     this.classes = this.props.classes;
     this.className = this.props.className;
@@ -167,10 +193,8 @@ class FeedsEditor extends Component {
   onStoreChange() {
     if (this.mounted) {
       let state=this.store.getState();
-
       let newSource=this.getFeedSource(state.modifyFeeds);
       let newSheet=this.getFeedSheet(state.modifyFeeds);
-      //console.log('newSheet',newSheet);
 
       if (newSource!==this.source) {
         this.source=newSource;
@@ -182,7 +206,7 @@ class FeedsEditor extends Component {
           }
 
           this.xlsxManager.load(loadUrl,(data)=>{
-            let feedsContentData = data.all;//data[newSheet];
+            let feedsContentData = data[newSheet];
             if (feedsContentData) {
               let optionsData = feedsContentData[feedsContentData.length-1];
               feedsContentData.pop();
@@ -192,7 +216,8 @@ class FeedsEditor extends Component {
                 optionsContent: optionsData,
                 sheet:newSheet,
                 contentReady: true,
-                wrongContent:false
+                wrongContent:false,
+                feedsSource: loadUrl,
               });           
             } else {
               this.setState({
@@ -241,7 +266,7 @@ class FeedsEditor extends Component {
 
   closeFeedsEditor() {
     this.store.dispatch(
-      closeFeedEditor()
+      closeFeedsEditor()
     )
   }
 
@@ -326,10 +351,13 @@ class FeedsEditor extends Component {
 
   }
 
+  saveFeedsContentHandler() {
+  }
+
 
 
   render() {
-
+    console.log(this.state.feedsContent);
     let children = [];
     children.push(this.props.children);
     
@@ -338,12 +366,12 @@ class FeedsEditor extends Component {
       let actualTabs = this.generateTabsArray();
       let tabsChildren = [];
       for (let i=0; i<actualTabs.length; i++) {
-        tabsChildren.push(<Tab label={actualTabs[i]} key={i} {...this.a11yProps(i)} />);
+        tabsChildren.push(<Tab label={actualTabs[i]} key={i} {...this.a11yProps(i)} className={clsx(this.classes.tab, this.className)}/>);
       }
       dialogChildren.push (
         <Grid item xs={12} key="topGridItem">
-          <AppBar position="static" key="AppBar">
-            <Tabs value={this.state.tabValue} onChange={this.tabs_changeHandler} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)} variant="scrollable" scrollButtons="auto">
+          <AppBar position="static" key="AppBar" className={clsx(this.classes.appBar, this.className)}>
+            <Tabs value={this.state.tabValue} onChange={this.tabs_changeHandler} aria-label="simple tabs example" key="Tabs" className={clsx(this.classes.tabs, this.className)} variant="scrollable" scrollButtons="on">
               {tabsChildren}
             </Tabs>
           </AppBar>
@@ -382,8 +410,8 @@ class FeedsEditor extends Component {
               onClick={this.addFeed}>
                 +
             </Button>
-            <Button size="small" key="saveButton" className={clsx(this.classes.saveButton, this.className)}>
-              <p className={clsx(this.classes.buttonText, this.className)}>Сохранить</p>
+            <Button size="small" key="saveButton" className={clsx(this.classes.saveButton, this.className)} onClick={this.saveFeedsContentHandler}>
+              <p className={clsx(this.classes.saveButtonText, this.className)}>Сохранить</p>
             </Button>
           </Box>
         </Grid>

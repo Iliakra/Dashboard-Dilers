@@ -8,8 +8,8 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   list: {
-    height: "40vh",
-    overflow: 'auto',
+    height: "65vh",
+    overflow: "auto",
   },
 };
 

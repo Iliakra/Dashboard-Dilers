@@ -45,18 +45,7 @@ const settings = {
 
     feedsEditorisActive:false,
 
-    modifyFeeds: [],//{src: 'abc', sheet: 'default'}
-    // feedsContent: [
-    //                 {
-    //                   id: 'default',
-    //                   content: [
-    //                     {feedOne: ['Поле 1','Поле 2']},
-    //                     {feedTwo: ['Поле 3','Поле 4']},
-    //                     {feedThree: ['Поле 5']},
-    //                     {feedFour: ['Поле 6']},
-    //                     ]
-    //                 },
-    //               ],
+    modifyFeeds: [],
   },
 
   isMobile:isMobile(),

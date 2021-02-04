@@ -17,7 +17,7 @@ import {
   reloadStoreData,
 } from '../actions/appActions';
 
-import { openFeedEditor } from '../actions/feedEditorActions';
+import { openFeedsEditor } from '../actions/feedsEditorActions';
 
 import {
   objectIsEmpty,
@@ -52,7 +52,7 @@ class TopMenu extends Component {
     this.clear_buttonHandler=this.clear_buttonHandler.bind(this);
     this.reload_buttonHandler=this.reload_buttonHandler.bind(this);
     this.download_buttonHandler=this.download_buttonHandler.bind(this);
-    this.openFeedEditor=this.openFeedEditor.bind(this);
+    this.openFeedsEditor=this.openFeedsEditor.bind(this);
 
   }
 
@@ -182,11 +182,13 @@ class TopMenu extends Component {
 
   }
 
-  openFeedEditor(event) {
+  openFeedsEditor(event) {
     this.store.dispatch(
-      openFeedEditor()
+      openFeedsEditor()
     )
   }
+
+
 
   render() {
     // let isSelected=false;
@@ -531,12 +533,14 @@ class TopMenu extends Component {
             margin: 5,
             padding: 5,
             fontSize: 12}}
-          onClick={this.openFeedEditor}
+          onClick={this.openFeedsEditor}
         >
         Контент
         </Button>
       )
     }
+ 
+
 
     return React.createElement(
       'div',
